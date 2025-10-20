@@ -55,20 +55,29 @@
       chat.scrollTop = chat.scrollHeight;
 
       try {
-        const res = await fetch("https://corsproxy.io/?https://free-api.aimlapi.com/v1/chat/completions", {
+        const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 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"
+          },
           body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: text }]
+            model: "deepseek-chat",
+            messages: [
+              { role: "system", content: "You are a helpful AI that writes Roblox Lua scripts and answers questions clearly." },
+              { role: "user", content: text }
+            ],
+            temperature: 0.7,
+            max_tokens: 500
           })
         });
 
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const reply = data?.choices?.[0]?.message?.content || "No response.";
         chat.lastElementChild.innerHTML = `AI: ${reply}`;
       } catch (err) {
-        chat.lastElementChild.innerHTML = `⚠️ Failed to connect (proxy error).`;
+        chat.lastElementChild.innerHTML = `⚠️ Failed to connect (Error: ${err.message})`;
       }
       chat.scrollTop = chat.scrollHeight;
     }
