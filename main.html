@@ -3,125 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Never Give Up na na na</title>
+  <title>Never Give Up 💬</title>
   <style>
-    :root {
-      --bg: #121212;
-      --text: #e0e0e0;
-      --accent: #ff4b4b;
-    }
-
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #eee;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
-      margin: 0;
     }
-
-    h1 {
-      color: var(--accent);
-      margin-bottom: 20px;
-    }
-
     #chat {
-      width: 80%;
+      width: 90%;
       max-width: 600px;
       height: 400px;
-      background: #1e1e1e;
-      border-radius: 10px;
       overflow-y: auto;
+      background: #1e1e1e;
+      border-radius: 12px;
       padding: 10px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
-
-    #input {
-      width: 80%;
-      max-width: 600px;
-      display: flex;
-    }
-
-    input {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 10px 0 0 10px;
-      outline: none;
-    }
-
-    button {
-      background: var(--accent);
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 0 10px 10px 0;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #ff6a6a;
-    }
-
-    .msg {
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 6px;
-    }
-
-    .user {
-      background: #ff4b4b;
-      align-self: flex-end;
-    }
-
-    .bot {
-      background: #333;
-    }
+    .msg {margin: 5px 0; padding: 8px; border-radius: 6px;}
+    .user {background: #ff4b4b;}
+    .bot {background: #333;}
+    #input {display: flex; width: 90%; max-width: 600px;}
+    input {flex: 1; padding: 10px; border-radius: 8px 0 0 8px; border: none; outline: none;}
+    button {background: #ff4b4b; border: none; color: white; padding: 10px 20px; border-radius: 0 8px 8px 0; cursor: pointer;}
+    button:hover {background: #ff6a6a;}
   </style>
 </head>
 <body>
   <h1>Never Give Up 💬</h1>
   <div id="chat"></div>
   <div id="input">
-    <input id="message" type="text" placeholder="Say something...">
+    <input id="msg" placeholder="Say something...">
     <button onclick="sendMessage()">Send</button>
   </div>
 
   <script>
     const chat = document.getElementById("chat");
-    const input = document.getElementById("message");
+    const input = document.getElementById("msg");
 
     async function sendMessage() {
-      const userText = input.value.trim();
-      if (!userText) return;
-
-      chat.innerHTML += `<div class='msg user'>You: ${userText}</div>`;
-      input.value = '';
-      chat.scrollTop = chat.scrollHeight;
-
+      const text = input.value.trim();
+      if (!text) return;
+      chat.innerHTML += `<div class='msg user'>You: ${text}</div>`;
+      input.value = "";
       chat.innerHTML += `<div class='msg bot'>AI: typing...</div>`;
       chat.scrollTop = chat.scrollHeight;
 
       try {
-        const res = await fetch("https://api.freegpt.one/v1/chat/completions", {
+        const res = await fetch("https://corsproxy.io/?https://free-api.aimlapi.com/v1/chat/completions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: userText }]
+            messages: [{ role: "user", content: text }]
           })
         });
 
         const data = await res.json();
-        const reply = data?.choices?.[0]?.message?.content || "Error: No response.";
-        chat.lastElementChild.innerHTML = `<strong>AI:</strong> ${reply}`;
+        const reply = data?.choices?.[0]?.message?.content || "No response.";
+        chat.lastElementChild.innerHTML = `AI: ${reply}`;
       } catch (err) {
-        chat.lastElementChild.innerHTML = `<strong>AI:</strong> ⚠️ Failed to connect. Try again.`;
+        chat.lastElementChild.innerHTML = `⚠️ Failed to connect (proxy error).`;
       }
-
       chat.scrollTop = chat.scrollHeight;
     }
   </script>
