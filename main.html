@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purium AI</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #e0e0e0;
+      --accent: #ffffff;
+      --bot: #1e1e1e;
+      --user: #2d2d2d;
+      --input-bg: #1e1e1e;
+      --code-bg: #252525;
+      --border: 1px solid #333333;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #000;
+      color: var(--text);
+      font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      overflow: hidden;
+    }
+    header {
+      padding: 12px 16px;
+      border-bottom: var(--border);
+      background: #00000000;
+    }
+    header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    #chat {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg-container {
+      display: flex;
+      max-width: 85%;
+      gap: 8px;
+      animation: messageIn 0.3s ease-out forwards;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .msg-container.bot { align-self: flex-start; }
+    .msg-container.user { align-self: flex-end; }
+    .pfp {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 4px;
+      object-fit: cover;
+    }
+    .msg {
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      word-break: break-word;
+      position: relative;
+      overflow: hidden;
+    }
+    .bot .msg {
+      background: var(--bot);
+      position: relative;
+    }
+    .user .msg {
+      background: var(--user);
+      position: relative;
+    }
+    #inputArea {
+      display: flex;
+      padding: 12px;
+      gap: 8px;
+      background: #00000000;
+    }
+    #userInput {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--input-bg);
+      color: var(--text);
+    }
+    #sendBtn {
+      background: var(--accent);
+      color: black;
+      border: none;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-weight: bold;
+      font-size: 14px;
+      min-width: 60px;
+      height: 40px;
+      cursor: pointer;
+    }
+    pre {
+      background: var(--code-bg);
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+      overflow-x: auto;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .copy-btn {
+      position: absolute;
+      right: 6px;
+      top: 6px;
+      background: var(--accent);
+      border: none;
+      border-radius: 4px;
+      color: black;
+      padding: 2px 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    @keyframes messageIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Purium AI</h1>
+  </header>
+
+  <div id="chat">
+    <div class="msg-container bot" style="opacity: 1; transform: none;">
+      <img src="https://i.imgur.com/jbKIlEi.png" class="pfp" alt="AI Logo">
+      <div class="msg">Hello! I am Purium AI. I can write Roblox Lua scripts! Ask me anything.</div>
+    </div>
+  </div>
+
+  <div id="inputArea">
+    <input id="userInput" type="text" placeholder="Ask for script..." autocomplete="off">
+    <button id="sendBtn">Send</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const chat = document.getElementById('chat');
+      const input = document.getElementById('userInput');
+      const button = document.getElementById('sendBtn');
+      const MAX_MESSAGES = 30;
+      const SYSTEM_PROMPT = "You are a Roblox Lua expert. Always format code in complete ```lua code blocks and keep responses concise.";
+
+      function appendMessage(text, isBot = false) {
+        const container = document.createElement('div');
+        container.className = `msg-container ${isBot ? 'bot' : 'user'}`;
+        if (isBot) {
+          container.innerHTML = `<img src="https://i.imgur.com/jbKIlEi.png" class="pfp" alt="AI Logo">`;
+        }
+        const msg = document.createElement('div');
+        msg.className = 'msg';
+        let formatted = text.replace(/```(\w*)\n([\s\S]*?)\n```/g, '<pre data-lang="$1"><code>$2</code></pre>');
+        msg.innerHTML = formatted;
+        container.appendChild(msg);
+        chat.appendChild(container);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      async function queryAI(prompt) {
+        appendMessage("Thinking...", true);
+        try {
+          const response = await fetch("https://api.binjie.fun/api/v1/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                { role: "user", content: prompt }
+              ]
+            })
+          });
+          const data = await response.json();
+          const aiResponse = data.choices?.[0]?.message?.content || "No response.";
+          document.querySelector(".msg-container.bot:last-child .msg").textContent = aiResponse;
+        } catch (e) {
+          document.querySelector(".msg-container.bot:last-child .msg").textContent = "Error: " + e.message;
+        }
+      }
+
+      async function sendMessage() {
+        const msg = input.value.trim();
+        if (!msg) return;
+        appendMessage(msg, false);
+        input.value = '';
+        await queryAI(msg);
+      }
+
+      button.addEventListener('click', sendMessage);
+      input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+    });
+  </script>
+</body>
+</html>
