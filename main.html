@@ -55,7 +55,7 @@
       chat.scrollTop = chat.scrollHeight;
 
       try {
-        const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
+        const res = await fetch("https://corsproxy.io/?https://api.deepseek.com/v1/chat/completions", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -77,7 +77,7 @@
         const reply = data?.choices?.[0]?.message?.content || "No response.";
         chat.lastElementChild.innerHTML = `AI: ${reply}`;
       } catch (err) {
-        chat.lastElementChild.innerHTML = `⚠️ Failed to connect (Error: ${err.message})`;
+        chat.lastElementChild.innerHTML = `⚠️ Failed to connect. Try again.`;
       }
       chat.scrollTop = chat.scrollHeight;
     }
