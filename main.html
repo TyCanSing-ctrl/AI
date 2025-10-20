@@ -3,216 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Purium AI</title>
+  <title>Never Give Up na na na</title>
   <style>
     :root {
       --bg: #121212;
       --text: #e0e0e0;
-      --accent: #ffffff;
-      --bot: #1e1e1e;
-      --user: #2d2d2d;
-      --input-bg: #1e1e1e;
-      --code-bg: #252525;
-      --border: 1px solid #333333;
+      --accent: #ff4b4b;
     }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+
     body {
-      background: #000;
+      background: var(--bg);
       color: var(--text);
-      font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      overflow: hidden;
+      margin: 0;
     }
-    header {
-      padding: 12px 16px;
-      border-bottom: var(--border);
-      background: #00000000;
-    }
-    header h1 {
-      font-size: 16px;
-      font-weight: 600;
+
+    h1 {
       color: var(--accent);
+      margin-bottom: 20px;
     }
+
     #chat {
-      flex: 1;
-      padding: 12px;
+      width: 80%;
+      max-width: 600px;
+      height: 400px;
+      background: #1e1e1e;
+      border-radius: 10px;
       overflow-y: auto;
-      font-size: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .msg-container {
-      display: flex;
-      max-width: 85%;
-      gap: 8px;
-      animation: messageIn 0.3s ease-out forwards;
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    .msg-container.bot { align-self: flex-start; }
-    .msg-container.user { align-self: flex-end; }
-    .pfp {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 4px;
-      object-fit: cover;
-    }
-    .msg {
       padding: 10px;
-      border-radius: 12px;
-      font-size: 14px;
-      line-height: 1.4;
-      word-break: break-word;
-      position: relative;
-      overflow: hidden;
+      margin-bottom: 15px;
     }
-    .bot .msg {
-      background: var(--bot);
-      position: relative;
-    }
-    .user .msg {
-      background: var(--user);
-      position: relative;
-    }
-    #inputArea {
+
+    #input {
+      width: 80%;
+      max-width: 600px;
       display: flex;
-      padding: 12px;
-      gap: 8px;
-      background: #00000000;
     }
-    #userInput {
+
+    input {
       flex: 1;
       padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      background: var(--input-bg);
-      color: var(--text);
-    }
-    #sendBtn {
-      background: var(--accent);
-      color: black;
       border: none;
-      border-radius: 8px;
-      padding: 0 12px;
-      font-weight: bold;
-      font-size: 14px;
-      min-width: 60px;
-      height: 40px;
+      border-radius: 10px 0 0 10px;
+      outline: none;
+    }
+
+    button {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 0 10px 10px 0;
       cursor: pointer;
     }
-    pre {
-      background: var(--code-bg);
-      padding: 12px;
+
+    button:hover {
+      background: #ff6a6a;
+    }
+
+    .msg {
+      margin: 5px 0;
+      padding: 8px;
       border-radius: 6px;
-      margin: 8px 0;
-      overflow-x: auto;
-      font-family: 'Consolas', monospace;
-      font-size: 13px;
-      line-height: 1.4;
     }
-    .copy-btn {
-      position: absolute;
-      right: 6px;
-      top: 6px;
-      background: var(--accent);
-      border: none;
-      border-radius: 4px;
-      color: black;
-      padding: 2px 6px;
-      font-size: 12px;
-      cursor: pointer;
-      font-weight: bold;
+
+    .user {
+      background: #ff4b4b;
+      align-self: flex-end;
     }
-    @keyframes messageIn {
-      to { opacity: 1; transform: translateY(0); }
+
+    .bot {
+      background: #333;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Purium AI</h1>
-  </header>
-
-  <div id="chat">
-    <div class="msg-container bot" style="opacity: 1; transform: none;">
-      <img src="https://i.imgur.com/jbKIlEi.png" class="pfp" alt="AI Logo">
-      <div class="msg">Hello! I am Purium AI. I can write Roblox Lua scripts! Ask me anything.</div>
-    </div>
-  </div>
-
-  <div id="inputArea">
-    <input id="userInput" type="text" placeholder="Ask for script..." autocomplete="off">
-    <button id="sendBtn">Send</button>
+  <h1>Never Give Up 💬</h1>
+  <div id="chat"></div>
+  <div id="input">
+    <input id="message" type="text" placeholder="Say something...">
+    <button onclick="sendMessage()">Send</button>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const chat = document.getElementById('chat');
-      const input = document.getElementById('userInput');
-      const button = document.getElementById('sendBtn');
-      const MAX_MESSAGES = 30;
-      const SYSTEM_PROMPT = "You are a Roblox Lua expert. Always format code in complete ```lua code blocks and keep responses concise.";
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("message");
 
-      function appendMessage(text, isBot = false) {
-        const container = document.createElement('div');
-        container.className = `msg-container ${isBot ? 'bot' : 'user'}`;
-        if (isBot) {
-          container.innerHTML = `<img src="https://i.imgur.com/jbKIlEi.png" class="pfp" alt="AI Logo">`;
-        }
-        const msg = document.createElement('div');
-        msg.className = 'msg';
-        let formatted = text.replace(/```(\w*)\n([\s\S]*?)\n```/g, '<pre data-lang="$1"><code>$2</code></pre>');
-        msg.innerHTML = formatted;
-        container.appendChild(msg);
-        chat.appendChild(container);
-        chat.scrollTop = chat.scrollHeight;
+    async function sendMessage() {
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      chat.innerHTML += `<div class='msg user'>You: ${userText}</div>`;
+      input.value = '';
+      chat.scrollTop = chat.scrollHeight;
+
+      chat.innerHTML += `<div class='msg bot'>AI: typing...</div>`;
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+        const res = await fetch("https://api.freegpt.one/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: userText }]
+          })
+        });
+
+        const data = await res.json();
+        const reply = data?.choices?.[0]?.message?.content || "Error: No response.";
+        chat.lastElementChild.innerHTML = `<strong>AI:</strong> ${reply}`;
+      } catch (err) {
+        chat.lastElementChild.innerHTML = `<strong>AI:</strong> ⚠️ Failed to connect. Try again.`;
       }
 
-async function queryAI(prompt) {
-  appendMessage("Thinking...", true);
-  try {
-    const response = await fetch("https://free-api.aimlapi.com/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: prompt }
-        ]
-      })
-    });
-    const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || "No response.";
-    document.querySelector(".msg-container.bot:last-child .msg").textContent = aiResponse;
-  } catch (e) {
-    document.querySelector(".msg-container.bot:last-child .msg").textContent = "Error: " + e.message;
-  }
-}
-
-
-      async function sendMessage() {
-        const msg = input.value.trim();
-        if (!msg) return;
-        appendMessage(msg, false);
-        input.value = '';
-        await queryAI(msg);
-      }
-
-      button.addEventListener('click', sendMessage);
-      input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
-    });
+      chat.scrollTop = chat.scrollHeight;
+    }
   </script>
 </body>
 </html>
